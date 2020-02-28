@@ -14,6 +14,8 @@ class Params:
     sigma_n = 10
     write_distortion = True
     distortion_as_json = False
+    distortion_as_pickle = False
+    distortion_as_npy = True
     write_visualization = True
     do_rigid = True
     rigid_downscale = 4.0
@@ -155,6 +157,16 @@ if params.write_distortion:
         # https://stackoverflow.com/questions/26646362/numpy-array-is-not-json-serializable
         json.dump((mx.tolist(), my.tolist()), codecs.open(name, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=False, indent=4)
         ### this saves the array in .json format
+    elif params.distortion_as_pickle:
+        name = sys.argv[3] + "-local.pickle"
+        with open(name, 'wb') as file:
+            pickle.dump((mx.tolist(), my.tolist()), file)
+    elif params.distortion_as_npy:
+        name = sys.argv[3] + "-local_x.npy"
+        np.save(name, mx)
+        name = sys.argv[3] + "-local_y.npy"
+        np.save(name, my)
+
     else:
         name = sys.argv[3] + "-local.png"
         cx = np.array(acc_x, dtype=float)
