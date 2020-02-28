@@ -67,7 +67,7 @@ im = cv2.imread(name, -1)
 
 ## pad the image beforehand
 add_border = int(im.shape[0]/4)
-ext = cv2.copyMakeBorder(im, add_border, add_border, add_border, add_border, cv2.BORDER_CONSTANT, value=0)
+ext = cv2.copyMakeBorder(im, add_border, add_border, add_border, add_border, cv2.BORDER_CONSTANT, value=255)
 cv2.imwrite(sys.argv[1] + ".dump.png", ext)
 # ext = im
 
@@ -111,7 +111,7 @@ cv2.imwrite(name, dump_img)
 dump_img = None
 
 print("remapping...")
-newf = cv2.remap(ext, mx, my, cv2.INTER_CUBIC)
+newf = cv2.remap(ext, mx, my, cv2.INTER_CUBIC, cv2.BORDER_CONSTANT, borderValue=255)
 
 name = sys.argv[2]
 print("writing result file ", name, "...")
@@ -121,6 +121,8 @@ if len(sys.argv) > 3:
     print("beautifying...")
     mag, ang = cv2.cartToPolar(cx, cy)
     hsv = np.zeros((ext.shape[0], ext.shape[1], 3), dtype=np.uint8)
+    ### for color: fill ch.1 white
+    hsv[...,1].fill(255)
     # hsv[...,0] = ang * 180 / np.pi / 2
     ## careful: normalised in each transformation on its own!
     hsv[...,0] = cv2.normalize(ang * 180 / np.pi / 2,None,0,255,cv2.NORM_MINMAX)
@@ -148,8 +150,8 @@ json.dump((rotmat.tolist(), xshift, yshift), codecs.open(sys.argv[3] + ".global.
 xshift = abs(int(xshift))
 yshift = abs(int(yshift))
 # res = cv2.copyMakeBorder(newf, xshift, yshift, xshift, yshift, cv2.BORDER_CONSTANT, value=0)
-res = cv2.warpAffine(newf, transmat, ext.shape[0:2])
-final = cv2.warpAffine(res, rotmat, ext.shape[0:2])
+res = cv2.warpAffine(newf, transmat, ext.shape[0:2], cv2.BORDER_CONSTANT, borderValue=255)
+final = cv2.warpAffine(res, rotmat, ext.shape[0:2], cv2.BORDER_CONSTANT, borderValue=255)
 name = sys.argv[3]
 print("writing globally distorted file %s..." % name)
 cv2.imwrite(name, final)
