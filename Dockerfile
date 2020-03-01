@@ -17,10 +17,9 @@ RUN apt-get update \
         libtiff-dev \
         libavformat-dev \
         libpq-dev \
-        python3-scipy \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install numpy
+RUN pip install numpy scipy
 
 WORKDIR /
 ENV OPENCV_VERSION="4.1.1"
