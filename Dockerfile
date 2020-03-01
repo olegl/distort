@@ -1,5 +1,4 @@
 FROM python:3.7
-MAINTAINER Josip Janzic <josip@jjanzic.com>
 
 RUN apt-get update \
     && apt-get install -y \
@@ -45,7 +44,8 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
   -DPYTHON_INCLUDE_DIR=$(python3.7 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
   -DPYTHON_PACKAGES_PATH=$(python3.7 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") \
   .. \
-&& make install \
+&& make -j"$(nproc)" \
+&& make -j"$(nproc)" install \
 && rm /${OPENCV_VERSION}.zip \
 && rm -r /opencv-${OPENCV_VERSION}
 RUN ln -s \
