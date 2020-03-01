@@ -42,7 +42,7 @@ test01:
                  -v $(pwd)/example/:/images
                  -w /images/
                  $IMAGE_TAG:test
-                 python /distort/remap-blur.py lena.png lena_dl.png lena_dg.png lena_dv.png
+                 python /distort/remap-blur.py lena.png lena_dl.png lena_dg.png
                  2>&1 | grep 'writing globally distorted file'
   retry: 2
 

@@ -117,7 +117,7 @@ name = sys.argv[2]
 print("writing result file ", name, "...")
 cv2.imwrite(name, newf)
 
-if len(sys.argv) > 3:
+if len(sys.argv) > 4:
     print("beautifying...")
     mag, ang = cv2.cartToPolar(cx, cy)
     hsv = np.zeros((ext.shape[0], ext.shape[1], 3), dtype=np.uint8)
