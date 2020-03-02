@@ -60,7 +60,7 @@ def displacements_scale(sigma, scale, n, img, mu=0.0):
 
     return rx, ry
 
-
+r.seed(0) # set const seed for deterministic results
 name = sys.argv[1]
 print("reading %s..." % name)
 im = cv2.imread(name, -1)
