@@ -43,6 +43,7 @@ test01:
                  -w /images/
                  $IMAGE_TAG:test
                  python /distort/remap-blur.py lena.png lena_dl.png lena_dg.png lena_dv.png
+                 2>&1 | grep 'writing globally distorted file'
   retry: 2
 
 release:
