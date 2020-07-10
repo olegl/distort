@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import re
 import random as r
 import sys
 import scipy
@@ -60,10 +61,19 @@ def displacements_scale(sigma, scale, n, img, mu=0.0):
 
     return rx, ry
 
-
 name = sys.argv[1]
 print("reading %s..." % name)
 im = cv2.imread(name, -1)
+
+## use slice number as (const) seed for deterministic results
+m= re.search('_rec(?P<value>\d+)_', name)
+if m:
+    try:
+        seed= int(m.group('value'))
+        r.seed(seed)
+        print("random seed %d..." % seed)
+    except:
+        raise Exception("regex '_rec\d+_' had no match.")
 
 ## pad the image beforehand
 add_border = int(im.shape[0]/4)
@@ -117,7 +127,7 @@ name = sys.argv[2]
 print("writing result file ", name, "...")
 cv2.imwrite(name, newf)
 
-if len(sys.argv) > 3:
+if len(sys.argv) > 4:
     print("beautifying...")
     mag, ang = cv2.cartToPolar(cx, cy)
     hsv = np.zeros((ext.shape[0], ext.shape[1], 3), dtype=np.uint8)
