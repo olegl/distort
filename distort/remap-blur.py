@@ -77,7 +77,7 @@ if m:
 
 ## pad the image beforehand
 add_border = int(im.shape[0]/4)
-ext = cv2.copyMakeBorder(im, add_border, add_border, add_border, add_border, cv2.BORDER_CONSTANT, value=255)
+ext = cv2.copyMakeBorder(im, add_border, add_border, add_border, add_border, cv2.BORDER_CONSTANT, value=[255,255,255])
 cv2.imwrite(sys.argv[1] + ".dump.png", ext)
 # ext = im
 
@@ -121,7 +121,7 @@ cv2.imwrite(name, dump_img)
 dump_img = None
 
 print("remapping...")
-newf = cv2.remap(ext, mx, my, cv2.INTER_CUBIC, cv2.BORDER_CONSTANT, borderValue=255)
+newf = cv2.remap(ext, mx, my, cv2.INTER_CUBIC, cv2.BORDER_CONSTANT, borderValue=[255,255,255])
 
 name = sys.argv[2]
 print("writing result file ", name, "...")
@@ -160,8 +160,8 @@ json.dump((rotmat.tolist(), xshift, yshift), codecs.open(sys.argv[3] + ".global.
 xshift = abs(int(xshift))
 yshift = abs(int(yshift))
 # res = cv2.copyMakeBorder(newf, xshift, yshift, xshift, yshift, cv2.BORDER_CONSTANT, value=0)
-res = cv2.warpAffine(newf, transmat, ext.shape[0:2], cv2.BORDER_CONSTANT, borderValue=255)
-final = cv2.warpAffine(res, rotmat, ext.shape[0:2], cv2.BORDER_CONSTANT, borderValue=255)
+res = cv2.warpAffine(newf, transmat, ext.shape[0:2], cv2.BORDER_CONSTANT, borderValue=[255,255,255])
+final = cv2.warpAffine(res, rotmat, ext.shape[0:2], cv2.BORDER_CONSTANT, borderValue=[255,255,255])
 name = sys.argv[3]
 print("writing globally distorted file %s..." % name)
 cv2.imwrite(name, final)
