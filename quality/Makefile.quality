@@ -1,0 +1,161 @@
+SHELL = bash
+.ONESHELL:
+
+num_left?=1109
+num_right?=1110
+
+left=$(shell printf "el_%04d.png" $(num_left))
+right=$(shell printf "el_%04d.png" $(num_right))
+file_suffix=$(shell printf "_em_el-COLLECTION_%04d-%04d_" $(num_left) $(num_right))
+
+left_png=$(left:.tiff=.png)
+right_png=$(right:.tiff=.png)
+
+color_left:=$(addprefix color_, $(left_png))
+color_right:=$(addprefix color_, $(right_png))
+gray_left:=$(addprefix gray_, $(left_png))
+gray_right:=$(addprefix gray_, $(right_png))
+
+input_left_color:=$(addprefix crop_, $(color_left))
+input_right_color:=$(addprefix crop_, $(color_right))
+
+input_left_gray:=$(addprefix crop_, $(gray_left))
+input_right_gray:=$(addprefix crop_, $(gray_right))
+
+# https://stackoverflow.com/a/2826068
+# https://www.gnu.org/software/make/manual/html_node/Substitution-Refs.html
+# https://stackoverflow.com/a/47676194
+# http://www.imagemagick.org/discourse-server/viewtopic.php?t=34489
+# https://stackoverflow.com/a/36148655
+
+all : psnr ssim flow imshowpair jaccard
+
+.PHONY: inputs
+
+left.png : $(left)
+	ln -s $< $@
+
+right.png : $(right)
+	ln -s $< $@
+
+$(color_left) : $(left)
+	convert $< -colorspace RGB -define png:color-type=2 +repage $@
+
+$(color_right) : $(right)
+	convert $< -colorspace RGB -define png:color-type=2 +repage $@
+
+$(gray_left) : $(left)
+	convert $< -colorspace Gray $@
+
+$(gray_right) : $(right)
+	convert $< -colorspace Gray $@
+
+crop_% : %
+	convert $< -gravity center -crop 500x500+0+0 +repage -flatten $@
+
+$(input_left_color) : $(color_left)
+	convert $< -gravity center -crop 500x500+0+0 +repage -define png:color-type=2 -flatten $@
+
+$(input_right_color) : $(color_right)
+	convert $< -gravity center -crop 500x500+0+0 +repage -define png:color-type=2 -flatten $@
+
+inputs : $(input_left_color) $(input_right_color)  $(input_left_gray) $(input_right_gray)  left.png right.png
+
+crop_psnr_$(file_suffix).png : $(input_left_color) $(input_right_color)
+	-identify $(input_left_color) $(input_right_color)
+	-compare $(input_left_color) $(input_right_color) -compose Src -metric PSNR -fuzz 5% $@
+
+psnr_file : crop_psnr_$(file_suffix).png
+
+psnr_FULL_$(file_suffix).png : $(color_left) $(color_right)
+	-identify $(color_left) $(color_right)
+	-compare $(color_left) $(color_right) -compose Src -metric PSNR -fuzz 5% $@ 
+
+crop_psnr_FULL_$(file_suffix).png : psnr_FULL_$(file_suffix).png
+
+psnr_log : $(input_left_gray) $(input_right_gray)
+	-compare  $(input_left_gray) $(input_right_gray) -compose Src -metric PSNR -fuzz 5% t.png 2> psnr_$(file_suffix).txt 1>&2
+	rm -f t.png
+
+psnr : psnr_file psnr_log
+
+ssim_prepare :
+	-ln -s ../../code/ssim*m .
+
+ssim_full : ssim_full_$(file_suffix).png
+
+ssim_full_$(file_suffix).png : $(gray_left) $(gray_right) ssim_prepare
+	@echo "Please run me with GNU make!"
+	-octave-cli <<- SSIMEOFF 
+	pkg load image;
+	ssim_index(  "$(gray_left)" ,  "$(gray_right)" , "$@" );
+	SSIMEOFF
+
+crop_ssim_full_$(file_suffix).png : ssim_full_$(file_suffix).png
+	convert $< -gravity center -crop 500x500+0+0 +repage -flatten $@
+
+ssim_crop : crop_ssim_full_$(file_suffix).png
+
+ssim_log : ssim_CROP_$(file_suffix).txt
+
+ssim_CROP_$(file_suffix).txt : $(input_left_gray) $(input_right_gray) ssim_prepare
+	@echo "Please run me with GNU make!"
+	-octave-cli <<- SSIMEOFC > $@
+	pkg load image;
+	ssim_index( "$(input_left_gray)" ,  "$(input_right_gray)", "ssim_CROP_$(file_suffix).png");
+	SSIMEOFC
+	-rm -f ssim_CROP_$(file_suffix).png
+
+ssim : ssim_log ssim_crop ssim_prepare
+
+show_flow.py :
+	-ln -s ../../code/$@ .
+
+crop_flow_CROP_$(file_suffix).png : $(input_left_gray) $(input_right_gray) show_flow.py
+	( \
+	source ~/.virtualenvs/cv2/bin/activate; \
+	python3 show_flow.py $(input_left_gray) $(input_right_gray) $@ ; \
+	)
+
+flow_FULL_$(file_suffix).png : $(gray_left) $(gray_right) show_flow.py
+	( \
+	source ~/.virtualenvs/cv2/bin/activate; \
+	python3 show_flow.py $(gray_left) $(gray_right) $@; \
+	)
+
+flow_crop_FULL : crop_flow_FULL_$(file_suffix).png
+
+flow : crop_flow_CROP_$(file_suffix).png
+
+imshowpair.py :
+	-ln -s ../../code/$@ .
+
+jaccard.py :
+	-ln -s ../../code/$@ .
+
+jaccard_CROP_$(file_suffix)_100.txt : $(input_left_gray) $(input_right_gray) jaccard.py
+	( \
+	source ~/.virtualenvs/sklean/bin/activate; \
+	/usr/local/Cellar/python\@3.8/3.8.6_1/bin/python3.8 jaccard.py $(input_left_gray) $(input_right_gray) 100 > $@ \
+	)
+
+jaccard_CROP_$(file_suffix)_150.txt : $(input_left_gray) $(input_right_gray) jaccard.py
+	( \
+	source ~/.virtualenvs/sklean/bin/activate; \
+	/usr/local/Cellar/python\@3.8/3.8.6_1/bin/python3.8 jaccard.py $(input_left_gray) $(input_right_gray) 150 > $@ \
+	)
+
+jaccard-all : jaccard_CROP_$(file_suffix)_100.txt jaccard_CROP_$(file_suffix)_150.txt
+
+jaccard : jaccard_CROP_$(file_suffix)_100.txt
+
+crop_pair_$(file_suffix).png : $(input_left_gray) $(input_right_gray) imshowpair.py
+	( \
+	source ~/.virtualenvs/cv2-3.9/bin/activate; \
+	python3 imshowpair.py $(input_left_gray) $(input_right_gray) $@ \
+	)
+
+imshowpair : crop_pair_$(file_suffix).png
+
+all-text-single : psnr_log jaccard ssim_log
+

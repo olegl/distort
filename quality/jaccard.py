@@ -5,6 +5,7 @@ import numpy as np
 import sys
 
 t = int(sys.argv[3])
+print("threshold:", t)
 
 name = sys.argv[1]
 print("reading %s" % name)

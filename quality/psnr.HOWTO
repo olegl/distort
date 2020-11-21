@@ -1,0 +1,2 @@
+compare warped2_3_0300.tiff  warped2_3_0301.tiff -compose Src -metric PSNR -fuzz 5% psnr_ct_surf-deform_300-301.png 2> psnr
+

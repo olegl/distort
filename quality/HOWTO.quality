@@ -1,0 +1,44 @@
+for i in `seq 1 600`; do nice gmake num_left=$i num_right=$(($i+1))  all-text-single ; done
+
+for i in `seq 301 900`; do cat ssim_CROP__ct_distort-only-COLLECTION_0$i*txt | grep '^ ' >> ../ct_R2/ct_distort_ssim.csv; done
+
+rm -f ../ct_R2/ct_funatomi_ssim.csv ; for i in `seq 599 1199`; do cat ssim_CROP__ct-funatomi-COLLECTION-FULL_$(printf "%04d" $i)*txt | grep '^ ' >> ../ct_R2/ct_funatomi_ssim.csv; done
+
+for i in `seq 301 900`; do cat jaccard_CROP__ct_distort-only-COLLECTION_0$i*txt | grep '^.*Jaccard' | cut -f2 -d: >> ../ct_R2/ct_distort_jaccard.csv; done
+
+for i in `seq 301 900`; do cat psnr__ct_distort-only-COLLECTION_0$i*txt ; echo ; done > ../ct_R2/ct_distort_psnr.csv
+
+## R
+> vioplot(ss_surfd$V1, ss_gr$V1, col=rainbow(2), names=c("D.-SURF", "Gr. truth"), main="CT, SSIM", cex=2, lwd=2, cex.lab=3, cex.axis=1.5, cex.main=3)
+
+## t-test!
+## t-test, different vars. => Welch's t-test
+> t.test(ss_surfd$V1, ss_gr$V1, paired=T, var.equal=F, "two.sided")
+
+	Paired t-test
+
+data:  ss_surfd$V1 and ss_gr$V1
+t = -8.4499, df = 598, p-value = 2.223e-16
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.02923749 -0.01820973
+sample estimates:
+mean of the differences
+            -0.02372361
+
+> t.test(jc_surfd$V1, jc_gr$V1, paired=F, var.equal=F, "two.sided")
+
+	Welch Two Sample t-test
+
+data:  jc_surfd$V1 and jc_gr$V1
+t = -4.6154, df = 1067.3, p-value = 4.4e-06
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.02976542 -0.01200650
+sample estimates:
+mean of x mean of y
+0.4930395 0.5139254
+
+
+> vioplot(ct_ssim, col=c(rainbow_hcl(7), gray(0.7)), names=c("R.-SIFT", "R.-SURF", "D.-SURF", "GS", "Blending", "elastix", "local", "Gr. truth"), main="CT, SSIM", cex=2, lwd=2, cex.lab=3, cex.axis=1.3, cex.main=3, na.rm=T)
+> boxplot(ct_ssim, col=c(rainbow_hcl(7), gray(0.7)), names=c("R.-SIFT", "R.-SURF", "D.-SURF", "GS", "Blending", "elastix", "local", "Gr. truth"), main="CT, SSIM", cex=2, lwd=2, cex.lab=3, cex.axis=1.3, cex.main=3, na.rm=T)

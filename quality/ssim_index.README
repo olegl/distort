@@ -1,0 +1,1 @@
+octave-cli --eval 'pkg load image; ssim_index( "../LS/eval/feature-rigid/crop_rigid2_0_150.png", "../LS/eval/feature-rigid/crop_rigid2_0_151.png", "test.png"); '

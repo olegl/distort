@@ -1,4 +1,4 @@
-function [mssim, ssim_map] = ssim_index(img1, img2, K, window, L)
+function [mssim, ssim_map] = ssim_index(_img1, _img2, _outname, K, window, L)
 
 %========================================================================
 %SSIM Index, Version 1.0
@@ -71,6 +71,10 @@ function [mssim, ssim_map] = ssim_index(img1, img2, K, window, L)
 %
 %========================================================================
 
+disp(_img1)
+img1 = imread(_img1);
+disp(_img2)
+img2 = imread(_img2);
 
 if (nargin < 2 || nargin > 5)
    ssim_index = -Inf;
@@ -86,7 +90,7 @@ end
 
 [M N] = size(img1);
 
-if (nargin == 2)
+if (nargin == 3)
    if ((M < 11) || (N < 11))
 	   ssim_index = -Inf;
 	   ssim_map = -Inf;
@@ -98,7 +102,7 @@ if (nargin == 2)
    L = 255;                                  %
 end
 
-if (nargin == 3)
+if (nargin == 4)
    if ((M < 11) || (N < 11))
 	   ssim_index = -Inf;
 	   ssim_map = -Inf;
@@ -119,7 +123,7 @@ if (nargin == 3)
    end
 end
 
-if (nargin == 4)
+if (nargin == 5)
    [H W] = size(window);
    if ((H*W) < 4 || (H > M) || (W > N))
 	   ssim_index = -Inf;
@@ -140,7 +144,7 @@ if (nargin == 4)
    end
 end
 
-if (nargin == 5)
+if (nargin == 6)
    [H W] = size(window);
    if ((H*W) < 4 || (H > M) || (W > N))
 	   ssim_index = -Inf;
@@ -191,4 +195,10 @@ end
 
 mssim = mean2(ssim_map);
 
-return
+disp(_outname)
+imwrite(ssim_map, _outname);
+
+disp(mssim)
+
+ssim_index = mssim;
+return;
