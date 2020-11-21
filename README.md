@@ -6,19 +6,20 @@ The main use case are medical data.
 
 ## Example
 
-Original (padded) image:
+### Original (padded) image
 ![](example/oleg_e.png.dump.png)
 
-Locally distorted image:
+### Locally distorted image
 ![](example/oleg_l.png)
 
-Add global transformation:
+### Add global transformation
 ![](example/oleg_g.png)
 
-Visualization of local distortions:
+### Visualization of local distortions
 ![](example/oleg_v.png)
 
-Data of [local distortions](example/oleg_l.png-local.png), [global transform](example/oleg_g.png.global.json).
+### Data
+[Local distortions](example/oleg_l.png-local.png), [global transform](example/oleg_g.png.global.json).
 
 ## Copyright
 
