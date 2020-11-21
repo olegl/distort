@@ -1,3 +1,5 @@
+## initial code by Jean Francois Pambrun
+## https://gist.github.com/jpambrun/0cf01ab512db036ae32a4834a4cd542e
 import cv2
 import numpy as np
 import sys
